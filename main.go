@@ -1,6 +1,7 @@
 package main
 
 import (
+	"database/sql"
 	"flag"
 	"log"
 
@@ -25,6 +26,21 @@ func main() {
 
 	if csvFile == "" {
 		log.Fatal("Provide CSV file path using --file parameter")
+	}
+
+	conn, err := sql.Open("postgres", cfg.DbConnectionURI)
+	if err != nil {
+		log.Fatal("Cannot connect to database")
+	}
+
+	defer func() {
+		if err := conn.Close(); err != nil {
+			log.Printf("Error while closing database connection: %v", err)
+		}
+	}()
+
+	if err := conn.Ping(); err != nil {
+		log.Fatalf("Cannot connect to database (Ping failed): %v", err)
 	}
 }
 
